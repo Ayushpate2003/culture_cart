@@ -1,0 +1,379 @@
+import { useState } from "react";
+import { Navbar } from "@/components/navigation/Navbar";
+import { Footer } from "@/components/landing/Footer";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { 
+  Search, 
+  MessageCircle, 
+  Mail, 
+  Phone, 
+  Clock, 
+  Users, 
+  ShoppingBag, 
+  CreditCard,
+  Truck,
+  Shield,
+  HelpCircle,
+  BookOpen,
+  Video,
+  FileText
+} from "lucide-react";
+
+const Help = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const faqCategories = [
+    {
+      id: "getting-started",
+      title: "Getting Started",
+      icon: Users,
+      faqs: [
+        {
+          question: "How do I create an account?",
+          answer: "Click the 'Sign In' button in the top navigation, then select 'Create Account'. You can sign up as either a buyer or artisan. Fill out the required information and verify your email address to get started."
+        },
+        {
+          question: "What's the difference between buyer and artisan accounts?",
+          answer: "Buyer accounts can browse, purchase, and review products. Artisan accounts can create profiles, list products for sale, manage orders, and build their craft business on our platform."
+        },
+        {
+          question: "Is CraftConnect free to use?",
+          answer: "Creating an account and browsing is completely free. For artisans, we charge a small commission (5%) only when you make a sale. There are no monthly fees or listing charges."
+        }
+      ]
+    },
+    {
+      id: "buying",
+      title: "Buying & Orders",
+      icon: ShoppingBag,
+      faqs: [
+        {
+          question: "How do I place an order?",
+          answer: "Browse our catalog, click on any product you like, and click 'Add to Cart'. When ready, go to your cart and click 'Checkout'. You'll be guided through payment and shipping options."
+        },
+        {
+          question: "What payment methods do you accept?",
+          answer: "We accept all major credit cards (Visa, MasterCard, American Express), PayPal, Apple Pay, and Google Pay. All payments are processed securely through Stripe."
+        },
+        {
+          question: "Can I cancel or modify my order?",
+          answer: "You can cancel or modify orders within 1 hour of placing them. After that, please contact the artisan directly through your order page to discuss changes."
+        },
+        {
+          question: "What if I'm not satisfied with my purchase?",
+          answer: "Each artisan sets their own return policy, which you'll see on the product page. Most offer 30-day returns for unused items. Contact the artisan first, and if unresolved, our support team can help mediate."
+        }
+      ]
+    },
+    {
+      id: "shipping",
+      title: "Shipping & Delivery",
+      icon: Truck,
+      faqs: [
+        {
+          question: "How long does shipping take?",
+          answer: "Shipping times vary by artisan and product. Handmade items typically take 3-7 business days to create, plus 2-5 days for shipping. You'll see estimated delivery dates during checkout."
+        },
+        {
+          question: "Do you ship internationally?",
+          answer: "Many of our artisans offer international shipping, but availability varies by seller. Check the product page or contact the artisan directly for international shipping options and costs."
+        },
+        {
+          question: "How can I track my order?",
+          answer: "Once your order ships, you'll receive a tracking number via email. You can also check your order status anytime in your account dashboard under 'My Orders'."
+        }
+      ]
+    },
+    {
+      id: "selling",
+      title: "Selling on CraftConnect",
+      icon: CreditCard,
+      faqs: [
+        {
+          question: "How do I become an artisan seller?",
+          answer: "Click 'Join as Artisan' and complete the application form. Include photos of your work, your craft story, and business information. Our team reviews applications within 3-5 business days."
+        },
+        {
+          question: "What fees do you charge sellers?",
+          answer: "We charge a 5% commission on completed sales, plus payment processing fees (typically 2.9% + $0.30). There are no listing fees, monthly charges, or hidden costs."
+        },
+        {
+          question: "How do I get paid?",
+          answer: "Payments are automatically transferred to your connected bank account or PayPal weekly. You can view earnings and payment history in your seller dashboard."
+        },
+        {
+          question: "Can I sell my existing products from other platforms?",
+          answer: "Yes, you can cross-list products, but we encourage creating unique listings with original photos and descriptions that tell your craft story authentically."
+        }
+      ]
+    }
+  ];
+
+  const supportOptions = [
+    {
+      title: "Live Chat",
+      description: "Get instant help from our support team",
+      icon: MessageCircle,
+      availability: "Mon-Fri, 9AM-6PM EST",
+      action: "Start Chat",
+      featured: true
+    },
+    {
+      title: "Email Support",
+      description: "Send us a detailed message",
+      icon: Mail,
+      availability: "Response within 24 hours",
+      action: "Send Email"
+    },
+    {
+      title: "Phone Support",
+      description: "Speak directly with our team",
+      icon: Phone,
+      availability: "Mon-Fri, 10AM-5PM EST",
+      action: "Call Now"
+    }
+  ];
+
+  const guides = [
+    {
+      title: "Artisan Getting Started Guide",
+      description: "Complete walkthrough for new sellers",
+      type: "PDF",
+      icon: FileText,
+      downloadUrl: "#"
+    },
+    {
+      title: "Photography Tips for Crafts",
+      description: "Make your products shine with better photos",
+      type: "Video",
+      icon: Video,
+      downloadUrl: "#"
+    },
+    {
+      title: "Buyer's Guide to Handmade",
+      description: "What to expect when buying handcrafted items",
+      type: "Article",
+      icon: BookOpen,
+      downloadUrl: "#"
+    }
+  ];
+
+  const filteredFAQs = faqCategories.map(category => ({
+    ...category,
+    faqs: category.faqs.filter(faq => 
+      searchQuery === "" || 
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(category => category.faqs.length > 0);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      
+      <main className="pt-20 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-12 animate-fade-in">
+            <h1 className="font-heading text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              How Can We Help?
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+              Find answers to common questions, get support, and learn how to make the most of CraftConnect.
+            </p>
+            
+            {/* Search */}
+            <div className="max-w-lg mx-auto relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Search for help topics..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-base"
+              />
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2">
+              <Tabs defaultValue="faq" className="animate-slide-up animate-delay-200">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="faq">Frequently Asked Questions</TabsTrigger>
+                  <TabsTrigger value="guides">Guides & Resources</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="faq" className="space-y-6">
+                  {filteredFAQs.map((category, categoryIndex) => (
+                    <Card key={category.id} className="shadow-craft-soft">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <category.icon className="w-5 h-5 text-primary" />
+                          </div>
+                          {category.title}
+                          <Badge variant="secondary">{category.faqs.length}</Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Accordion type="single" collapsible className="space-y-2">
+                          {category.faqs.map((faq, faqIndex) => (
+                            <AccordionItem key={faqIndex} value={`${category.id}-${faqIndex}`}>
+                              <AccordionTrigger className="text-left hover:text-primary">
+                                {faq.question}
+                              </AccordionTrigger>
+                              <AccordionContent className="text-muted-foreground">
+                                {faq.answer}
+                              </AccordionContent>
+                            </AccordionItem>
+                          ))}
+                        </Accordion>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </TabsContent>
+                
+                <TabsContent value="guides" className="space-y-6">
+                  <div className="grid gap-6">
+                    {guides.map((guide, index) => (
+                      <Card key={index} className="hover-lift shadow-craft-soft">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <guide.icon className="w-6 h-6 text-accent" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="font-semibold text-foreground">{guide.title}</h3>
+                                <Badge variant="outline" className="text-xs">
+                                  {guide.type}
+                                </Badge>
+                              </div>
+                              <p className="text-muted-foreground mb-4">{guide.description}</p>
+                              <Button variant="outline" size="sm" className="hover-scale">
+                                {guide.type === "Video" ? "Watch" : "Download"}
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Support Options */}
+              <Card className="shadow-craft-soft animate-scale-in animate-delay-400">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-primary" />
+                    Get Support
+                  </CardTitle>
+                  <CardDescription>
+                    Still need help? Our support team is here for you.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {supportOptions.map((option, index) => (
+                    <div 
+                      key={index} 
+                      className={`p-4 rounded-lg border ${option.featured ? 'border-primary bg-primary/5' : 'border-border'} hover-lift`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          option.featured ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                        }`}>
+                          <option.icon className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-foreground mb-1">{option.title}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{option.description}</p>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+                            <Clock className="w-3 h-3" />
+                            {option.availability}
+                          </div>
+                          <Button 
+                            variant={option.featured ? "default" : "outline"} 
+                            size="sm" 
+                            className="w-full hover-scale"
+                          >
+                            {option.action}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Contact Form */}
+              <Card className="shadow-craft-soft animate-scale-in animate-delay-500">
+                <CardHeader>
+                  <CardTitle>Send us a Message</CardTitle>
+                  <CardDescription>
+                    Can't find what you're looking for? Send us a message and we'll get back to you.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Input placeholder="Your Name" />
+                  </div>
+                  <div>
+                    <Input placeholder="Your Email" type="email" />
+                  </div>
+                  <div>
+                    <Input placeholder="Subject" />
+                  </div>
+                  <div>
+                    <Textarea placeholder="How can we help you?" rows={4} />
+                  </div>
+                  <Button variant="hero" className="w-full hover-glow">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Send Message
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Quick Stats */}
+              <Card className="shadow-craft-soft animate-scale-in animate-delay-600">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-primary" />
+                    Support Stats
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Avg. Response Time</span>
+                    <span className="font-semibold">2.3 hours</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Resolution Rate</span>
+                    <span className="font-semibold">98.5%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Customer Satisfaction</span>
+                    <span className="font-semibold">4.9/5</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Help;
