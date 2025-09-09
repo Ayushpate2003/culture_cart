@@ -41,6 +41,18 @@ Lint the codebase:
 npm run lint
 ```
 
+## Cross-platform note (Windows and Linux)
+
+This repository now uses Windows-safe filenames for assets under `public/`. Windows does not allow characters like `:` in file names, which previously caused clone/checkout failures on Windows. The following assets were renamed to kebab-case:
+
+- `public/Behind the Scenes: A Day in David's Leather Workshop.jpg` → `public/behind-the-scenes-a-day-in-davids-leather-workshop.jpg`
+- `public/The Art of Slow Fashion: Weaving Stories into Fabric.jpg` → `public/the-art-of-slow-fashion-weaving-stories-into-fabric.jpg`
+- `public/The Science Behind Perfect Glass: Temperature, Time, and Intuition.jpg` → `public/the-science-behind-perfect-glass-temperature-time-and-intuition.jpg`
+- `public/Woodworking with Purpose: Creating Furniture that Tells Stories.jpg` → `public/woodworking-with-purpose-creating-furniture-that-tells-stories.jpg`
+- `public/Jewelry as Identity: Crafting Personal Narratives in Silver.jpg` → `public/jewelry-as-identity-crafting-personal-narratives-in-silver.jpg`
+
+If you maintain assets, please avoid characters not supported on Windows file systems (e.g., `: * ? " < > |`) and prefer lowercase letters, numbers, dashes, and underscores.
+
 ## Project Structure
 
 Key paths:

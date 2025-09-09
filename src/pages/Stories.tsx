@@ -33,7 +33,7 @@ const Stories = () => {
       readTime: "6 min read",
       publishDate: "2024-01-18",
       featured: true,
-      image: "/The Art of Slow Fashion: Weaving Stories into Fabric.jpg",
+      image: "/the-art-of-slow-fashion-weaving-stories-into-fabric.jpg",
       tags: ["Textiles", "Sustainability", "Fashion"]
     }
   ];
@@ -48,7 +48,7 @@ const Stories = () => {
       category: "Process",
       readTime: "5 min read",
       publishDate: "2024-01-20",
-     image: "/Behind the Scenes: A Day in David's Leather Workshop.jpg",
+     image: "/behind-the-scenes-a-day-in-davids-leather-workshop.jpg",
       tags: ["Leather", "Craftsmanship", "Process"]
     },
     {
@@ -60,7 +60,7 @@ const Stories = () => {
       category: "Technique",
       readTime: "7 min read",
       publishDate: "2024-01-22",
-      image: "/The Science Behind Perfect Glass: Temperature, Time, and Intuition.jpg",
+      image: "/the-science-behind-perfect-glass-temperature-time-and-intuition.jpg",
       tags: ["Glass", "Science", "Art"]
     },
     {
@@ -72,7 +72,7 @@ const Stories = () => {
       category: "Philosophy",
       readTime: "9 min read",
       publishDate: "2024-01-25",
-      image: "/Woodworking with Purpose: Creating Furniture that Tells Stories.jpg",
+      image: "/woodworking-with-purpose-creating-furniture-that-tells-stories.jpg",
       tags: ["Woodworking", "Sustainability", "Design"]
     },
     {
@@ -84,7 +84,7 @@ const Stories = () => {
       category: "Personal",
       readTime: "4 min read",
       publishDate: "2024-01-28",
-      image: "/Jewelry as Identity: Crafting Personal Narratives in Silver.jpg",
+      image: "/jewelry-as-identity-crafting-personal-narratives-in-silver.jpg",
       tags: ["Jewelry", "Identity", "Custom"]
     }
   ];
