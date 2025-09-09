@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import { useEffect } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,36 +19,44 @@ import AddArtisan from "./pages/admin/AddArtisan";
 import ViewOrders from "./pages/admin/ViewOrders";
 import Analytics from "./pages/admin/Analytics";
 import SubmitStory from "./pages/SubmitStory";
+import { logout } from "@/data/mockData";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/stories" element={<Stories />} />
-          <Route path="/stories/submit" element={<SubmitStory />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/signup" element={<ArtisanSignup />} />
-          <Route path="/catalog" element={<ProductCatalog />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/artisans" element={<ArtisanProfiles />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin/add-product" element={<AddProduct />} />
-          <Route path="/admin/add-artisan" element={<AddArtisan />} />
-          <Route path="/admin/view-orders" element={<ViewOrders />} />
-          <Route path="/admin/analytics" element={<Analytics />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useEffect(() => {
+    // Clear any existing session for both admin and user on startup
+    logout();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/stories" element={<Stories />} />
+            <Route path="/stories/submit" element={<SubmitStory />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/signup" element={<ArtisanSignup />} />
+            <Route path="/catalog" element={<ProductCatalog />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/artisans" element={<ArtisanProfiles />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin/add-product" element={<AddProduct />} />
+            <Route path="/admin/add-artisan" element={<AddArtisan />} />
+            <Route path="/admin/view-orders" element={<ViewOrders />} />
+            <Route path="/admin/analytics" element={<Analytics />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
