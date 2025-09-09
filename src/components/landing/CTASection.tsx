@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -64,13 +65,31 @@ export const CTASection = () => {
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="flex-1"
-                >
-                  Watch Demo
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      className="flex-1"
+                    >
+                      Watch Demo
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="w-[90vw] max-w-3xl p-2 sm:p-4">
+                    <DialogTitle className="sr-only">Platform Demo</DialogTitle>
+                    <div className="aspect-video w-full overflow-hidden rounded-md bg-black">
+                      <video
+                        src="/HANDWOVEN SCARF - AUTUMN.mp4"
+                        className="h-full w-full"
+                        controls
+                        autoPlay
+                        muted
+                        preload="metadata"
+                        playsInline
+                      />
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </div>

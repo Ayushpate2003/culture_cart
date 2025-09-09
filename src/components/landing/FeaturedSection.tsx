@@ -11,7 +11,7 @@ const featuredProducts = [
     location: "Rajasthan, India",
     price: "$89",
     rating: 4.9,
-    image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=300&fit=crop",
+    image: "/Handwoven Silk Scarf.jpg",
     tags: ["Textiles", "Traditional", "Silk"],
   },
   {
@@ -21,7 +21,7 @@ const featuredProducts = [
     location: "Kyoto, Japan",
     price: "$156",
     rating: 4.8,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+    image: "/Ceramic Tea Set.jpg",
     tags: ["Pottery", "Ceramic", "Tea"],
   },
   {
@@ -31,7 +31,7 @@ const featuredProducts = [
     location: "Oaxaca, Mexico",
     price: "$45",
     rating: 4.9,
-    image: "https://images.unsplash.com/photo-1610736944350-d3dc11b371b7?w=400&h=300&fit=crop",
+    image: "/Carved Wooden Bowl.jpg",
     tags: ["Woodwork", "Traditional", "Kitchen"],
   },
   {

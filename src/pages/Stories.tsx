@@ -4,10 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart, Clock, User, Play, BookOpen, Award } from "lucide-react";
+import { Heart, Clock, User, Play, BookOpen, Award, Trash } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const Stories = () => {
-  const featuredStories = [
+  const initialFeaturedStories = [
     {
       id: 1,
       title: "From Grandmother's Attic to Global Recognition",
@@ -18,7 +20,7 @@ const Stories = () => {
       readTime: "8 min read",
       publishDate: "2024-01-15",
       featured: true,
-      image: "/placeholder.svg",
+      image: "/Behind the Scenes: A Day in David's Leather Workshop.jpg",
       tags: ["Pottery", "Heritage", "Inspiration"]
     },
     {
@@ -31,12 +33,12 @@ const Stories = () => {
       readTime: "6 min read",
       publishDate: "2024-01-18",
       featured: true,
-      image: "/placeholder.svg",
+      image: "/The Art of Slow Fashion: Weaving Stories into Fabric.jpg",
       tags: ["Textiles", "Sustainability", "Fashion"]
     }
   ];
 
-  const recentStories = [
+  const initialBaseRecentStories = [
     {
       id: 3,
       title: "Behind the Scenes: A Day in David's Leather Workshop",
@@ -46,7 +48,7 @@ const Stories = () => {
       category: "Process",
       readTime: "5 min read",
       publishDate: "2024-01-20",
-      image: "/placeholder.svg",
+     image: "/Behind the Scenes: A Day in David's Leather Workshop.jpg",
       tags: ["Leather", "Craftsmanship", "Process"]
     },
     {
@@ -58,7 +60,7 @@ const Stories = () => {
       category: "Technique",
       readTime: "7 min read",
       publishDate: "2024-01-22",
-      image: "/placeholder.svg",
+      image: "/The Science Behind Perfect Glass: Temperature, Time, and Intuition.jpg",
       tags: ["Glass", "Science", "Art"]
     },
     {
@@ -70,7 +72,7 @@ const Stories = () => {
       category: "Philosophy",
       readTime: "9 min read",
       publishDate: "2024-01-25",
-      image: "/placeholder.svg",
+      image: "/Woodworking with Purpose: Creating Furniture that Tells Stories.jpg",
       tags: ["Woodworking", "Sustainability", "Design"]
     },
     {
@@ -82,10 +84,38 @@ const Stories = () => {
       category: "Personal",
       readTime: "4 min read",
       publishDate: "2024-01-28",
-      image: "/placeholder.svg",
+      image: "/Jewelry as Identity: Crafting Personal Narratives in Silver.jpg",
       tags: ["Jewelry", "Identity", "Custom"]
     }
   ];
+
+  const [userStories, setUserStories] = useState<any[]>([]);
+  const [featuredStories, setFeaturedStories] = useState<any[]>(initialFeaturedStories);
+  const [baseRecentStories, setBaseRecentStories] = useState<any[]>(initialBaseRecentStories);
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    const raw = localStorage.getItem("userStories");
+    setUserStories(raw ? JSON.parse(raw) : []);
+    const userRaw = localStorage.getItem("user");
+    try {
+      const u = userRaw ? JSON.parse(userRaw) : null;
+      setIsAdmin(!!u && u.role === "admin");
+    } catch {}
+  }, []);
+
+  const handleDelete = (id: number | string, source: "user" | "featured" | "recent") => {
+    if (source === "user") {
+      const updated = userStories.filter((s) => s.id !== id);
+      setUserStories(updated);
+      localStorage.setItem("userStories", JSON.stringify(updated));
+      return;
+    }
+    if (source === "featured") {
+      setFeaturedStories((prev) => prev.filter((s) => s.id !== id));
+      return;
+    }
+    setBaseRecentStories((prev) => prev.filter((s) => s.id !== id));
+  };
 
   const categories = [
     { name: "All Stories", count: 24, active: true },
@@ -149,11 +179,16 @@ const Stories = () => {
                         Featured
                       </Badge>
                     </div>
-                    <div className="absolute bottom-4 right-4">
+                    <div className="absolute bottom-4 right-4 flex items-center gap-2">
                       <Button size="sm" variant="secondary" className="backdrop-blur-sm">
                         <Play className="w-4 h-4 mr-2" />
                         Read Story
                       </Button>
+                      {isAdmin && (
+                        <Button size="icon" variant="destructive" onClick={() => handleDelete(story.id, "featured")}>
+                          <Trash className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <CardHeader>
@@ -204,7 +239,7 @@ const Stories = () => {
               Recent Stories
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentStories.map((story, index) => (
+              {[...userStories, ...baseRecentStories].map((story, index) => (
                 <Card key={story.id} className={`hover-lift shadow-craft-soft animate-scale-in animate-delay-${700 + index * 100}`}>
                   <div className="relative h-48 rounded-t-lg overflow-hidden">
                     <img
@@ -213,10 +248,15 @@ const Stories = () => {
                       className="w-full h-full object-cover transition-transform hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                       <Badge variant="outline" className="bg-background/20 backdrop-blur-sm border-white/20 text-white mb-2">
                         {story.category}
                       </Badge>
+                      {isAdmin && (
+                        <Button size="icon" variant="destructive" onClick={() => handleDelete(story.id, userStories.some(u=>u.id===story.id)?"user":"recent")}>
+                          <Trash className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <CardHeader className="pb-3">
@@ -267,9 +307,11 @@ const Stories = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="hero" size="lg" className="hover-glow">
-                  <Award className="w-5 h-5 mr-2" />
-                  Submit Your Story
+                <Button asChild variant="hero" size="lg" className="hover-glow">
+                  <Link to="/stories/submit">
+                    <Award className="w-5 h-5 mr-2" />
+                    Submit Your Story
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

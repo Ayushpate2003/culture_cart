@@ -17,6 +17,7 @@ import AddProduct from "./pages/admin/AddProduct";
 import AddArtisan from "./pages/admin/AddArtisan";
 import ViewOrders from "./pages/admin/ViewOrders";
 import Analytics from "./pages/admin/Analytics";
+import SubmitStory from "./pages/SubmitStory";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/stories" element={<Stories />} />
+          <Route path="/stories/submit" element={<SubmitStory />} />
           <Route path="/help" element={<Help />} />
           <Route path="/signup" element={<ArtisanSignup />} />
           <Route path="/catalog" element={<ProductCatalog />} />

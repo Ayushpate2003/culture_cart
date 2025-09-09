@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,8 +10,48 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Upload, MapPin, Palette, Wand2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const ArtisanSignup = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [locationVal, setLocationVal] = useState("");
+  const [craftType, setCraftType] = useState("");
+  const [experience, setExperience] = useState("");
+  const [bio, setBio] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSubmit = () => {
+    const userRaw = localStorage.getItem("user");
+    const user = userRaw ? JSON.parse(userRaw) : null;
+    if (!user || user.role !== "user") {
+      toast({ title: "Login required", description: "Please login as a user before submitting." });
+      navigate("/login");
+      return;
+    }
+    const app = {
+      id: Date.now(),
+      name: `${firstName} ${lastName}`.trim(),
+      email,
+      location: locationVal,
+      specialty: craftType,
+      avatar: "/logo.png",
+      bio,
+      rating: 0,
+      totalSales: 0,
+      joinedDate: new Date().toISOString().slice(0,10),
+      featuredImage: "/placeholder.svg",
+      followers: 0,
+      verified: false,
+    };
+    const raw = localStorage.getItem("artisanApplications");
+    const list = raw ? JSON.parse(raw) : [];
+    localStorage.setItem("artisanApplications", JSON.stringify([app, ...list]));
+    toast({ title: "Application submitted", description: "Admin will review your profile." });
+    navigate("/dashboard");
+  };
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -47,17 +89,17 @@ const ArtisanSignup = () => {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
-                      <Input id="firstName" placeholder="Your first name" />
+                      <Input id="firstName" placeholder="Your first name" value={firstName} onChange={(e)=>setFirstName(e.target.value)} />
                     </div>
                     <div>
                       <Label htmlFor="lastName">Last Name *</Label>
-                      <Input id="lastName" placeholder="Your last name" />
+                      <Input id="lastName" placeholder="Your last name" value={lastName} onChange={(e)=>setLastName(e.target.value)} />
                     </div>
                   </div>
 
                   <div>
                     <Label htmlFor="email">Email Address *</Label>
-                    <Input id="email" type="email" placeholder="your@email.com" />
+                    <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={(e)=>setEmail(e.target.value)} />
                   </div>
 
                   {/* Location */}
@@ -66,7 +108,7 @@ const ArtisanSignup = () => {
                       <MapPin className="w-4 h-4 mr-1" />
                       Location *
                     </Label>
-                    <Input id="location" placeholder="City, Country" />
+                    <Input id="location" placeholder="City, Country" value={locationVal} onChange={(e)=>setLocationVal(e.target.value)} />
                   </div>
 
                   {/* Craft Details */}
@@ -75,12 +117,12 @@ const ArtisanSignup = () => {
                       <Palette className="w-4 h-4 mr-1" />
                       Primary Craft Type *
                     </Label>
-                    <Input id="craftType" placeholder="e.g., Pottery, Textiles, Woodworking" />
+                    <Input id="craftType" placeholder="e.g., Pottery, Textiles, Woodworking" value={craftType} onChange={(e)=>setCraftType(e.target.value)} />
                   </div>
 
                   <div>
                     <Label htmlFor="experience">Years of Experience</Label>
-                    <Input id="experience" type="number" placeholder="How many years?" />
+                    <Input id="experience" type="number" placeholder="How many years?" value={experience} onChange={(e)=>setExperience(e.target.value)} />
                   </div>
 
                   {/* Bio */}
@@ -93,6 +135,8 @@ const ArtisanSignup = () => {
                     <Textarea 
                       id="bio" 
                       placeholder="Tell us about your craft journey, heritage, and what inspires your work..."
+                      value={bio}
+                      onChange={(e)=>setBio(e.target.value)}
                       className="min-h-[120px]"
                     />
                   </div>
@@ -126,7 +170,7 @@ const ArtisanSignup = () => {
 
                   {/* Submit Button */}
                   <div className="pt-4">
-                    <Button variant="hero" size="lg" className="w-full">
+                    <Button variant="hero" size="lg" className="w-full" onClick={handleSubmit}>
                       Create My Artisan Profile
                     </Button>
                     <p className="text-xs text-muted-foreground text-center mt-2">

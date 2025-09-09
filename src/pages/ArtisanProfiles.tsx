@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navigation/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
@@ -135,11 +135,41 @@ const ArtisanProfiles = () => {
   const [selectedCraft, setSelectedCraft] = useState("All Crafts");
   const [selectedLocation, setSelectedLocation] = useState("All Locations");
   const [sortBy, setSortBy] = useState("popular");
+  const [approvedArtisans, setApprovedArtisans] = useState<any[]>([]);
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
+  useEffect(() => {
+    const approved = JSON.parse(localStorage.getItem("approvedArtisans") || "[]");
+    setApprovedArtisans(approved);
+    const removed = JSON.parse(localStorage.getItem("removedArtisanIds") || "[]");
+    setRemovedIds(removed);
+  }, []);
 
   const crafts = ["All Crafts", "Textile Weaving", "Ceramics", "Woodworking", "Jewelry Making"];
   const locations = ["All Locations", "Asia", "Europe", "Americas", "Africa"];
 
-  const filteredArtisans = artisans.filter(artisan => {
+  const allArtisans = [...approvedArtisans.map((a:any)=>({
+    id: a.id,
+    name: a.name,
+    avatar: a.avatar,
+    location: a.location,
+    craft: a.specialty,
+    specialty: a.specialty,
+    rating: 0,
+    totalProducts: 0,
+    totalSales: a.totalSales || 0,
+    yearsActive: 0,
+    joinedDate: a.joinedDate,
+    verified: false,
+    bio: a.bio,
+    tags: [a.specialty],
+    featuredImage: a.featuredImage,
+    followers: a.followers || 0,
+    manageId: `approved-${a.id}`,
+  })), ...artisans.map((a:any)=>({ ...a, manageId: `base-${a.id}` }))];
+
+  const visibleArtisans = allArtisans.filter((a:any)=> !removedIds.includes(a.manageId));
+
+  const filteredArtisans = visibleArtisans.filter(artisan => {
     const matchesSearch = artisan.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          artisan.craft.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          artisan.specialty.toLowerCase().includes(searchQuery.toLowerCase());
@@ -222,7 +252,7 @@ const ArtisanProfiles = () => {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Showing {filteredArtisans.length} of {artisans.length} artisans
+              Showing {filteredArtisans.length} of {allArtisans.length} artisans
             </p>
           </div>
 

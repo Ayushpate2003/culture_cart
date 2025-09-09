@@ -15,6 +15,7 @@ import {
   type Artisan,
   type Order 
 } from "@/data/mockData";
+import { useToast } from "@/hooks/use-toast";
 import { 
   ShoppingBag, 
   Users, 
@@ -28,6 +29,12 @@ import {
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const [pendingApps, setPendingApps] = useState<any[]>([]);
+  const [approvedArtisans, setApprovedArtisans] = useState<any[]>([]);
+  const [actionNotice, setActionNotice] = useState<{ text: string; variant: "default" | "secondary" | "destructive" } | null>(null);
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<string>(isAdmin() ? "overview" : "purchases");
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
 
   useEffect(() => {
     const currentUser = getUser();
@@ -36,7 +43,62 @@ const Dashboard = () => {
       return;
     }
     setUser(currentUser);
+    const apps = JSON.parse(localStorage.getItem("artisanApplications") || "[]");
+    setPendingApps(apps);
+    const approved = JSON.parse(localStorage.getItem("approvedArtisans") || "[]");
+    setApprovedArtisans(approved);
+    const removed = JSON.parse(localStorage.getItem("removedArtisanIds") || "[]");
+    setRemovedIds(removed);
   }, [navigate]);
+
+  const approveApp = (id: number) => {
+    const app = pendingApps.find((a) => a.id === id);
+    if (!app) return;
+    const updatedPending = pendingApps.filter((a) => a.id !== id);
+    const updatedApproved = [app, ...approvedArtisans];
+    setPendingApps(updatedPending);
+    setApprovedArtisans(updatedApproved);
+    localStorage.setItem("artisanApplications", JSON.stringify(updatedPending));
+    localStorage.setItem("approvedArtisans", JSON.stringify(updatedApproved));
+    setActionNotice({ text: `Approved ${app.name}`, variant: "default" });
+    toast({ title: "Approved", description: `${app.name} is now visible on Explore & Home.` });
+    setTimeout(() => setActionNotice(null), 3000);
+  };
+
+  const rejectApp = (id: number) => {
+    const app = pendingApps.find((a) => a.id === id);
+    const updatedPending = pendingApps.filter((a) => a.id !== id);
+    setPendingApps(updatedPending);
+    localStorage.setItem("artisanApplications", JSON.stringify(updatedPending));
+    if (app) {
+      setActionNotice({ text: `Rejected ${app.name}`, variant: "secondary" });
+      toast({ title: "Rejected", description: `${app.name}'s application was rejected.` });
+      setTimeout(() => setActionNotice(null), 3000);
+    }
+  };
+
+  const removeApproved = (id: number) => {
+    const removed = approvedArtisans.find((a) => a.id === id);
+    const updated = approvedArtisans.filter((a) => a.id !== id);
+    setApprovedArtisans(updated);
+    localStorage.setItem("approvedArtisans", JSON.stringify(updated));
+    if (removed) {
+      setActionNotice({ text: `Removed ${removed.name}`, variant: "destructive" });
+      toast({ title: "Removed", description: `${removed.name} will no longer appear on Explore & Home.` });
+      setTimeout(() => setActionNotice(null), 3000);
+    }
+  };
+
+  const toggleVisibility = (manageId: string, makeVisible: boolean) => {
+    let next = removedIds.slice();
+    if (makeVisible) {
+      next = next.filter((id) => id !== manageId);
+    } else {
+      if (!next.includes(manageId)) next.push(manageId);
+    }
+    setRemovedIds(next);
+    localStorage.setItem("removedArtisanIds", JSON.stringify(next));
+  };
 
   // Dashboard header does not render its own auth controls; navbar handles them.
 
@@ -110,7 +172,7 @@ const Dashboard = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue={isAdmin() ? "overview" : "purchases"} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
             {isAdmin() ? (
               <>
@@ -118,6 +180,7 @@ const Dashboard = () => {
                 <TabsTrigger value="orders">Orders</TabsTrigger>
                 <TabsTrigger value="products">Products</TabsTrigger>
                 <TabsTrigger value="artisans">Artisans</TabsTrigger>
+                <TabsTrigger value="manage-artisans">Manage Artisans</TabsTrigger>
                 <TabsTrigger value="users">Users</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
               </>
@@ -142,7 +205,7 @@ const Dashboard = () => {
                       <CardDescription>Common administrative tasks</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <Button 
                           variant="outline" 
                           className="h-20 flex-col gap-2"
@@ -158,6 +221,14 @@ const Dashboard = () => {
                         >
                           <Users className="h-6 w-6" />
                           <span className="text-xs">Add Artisan</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="h-20 flex-col gap-2"
+                          onClick={() => setActiveTab("manage-artisans")}
+                        >
+                          <Users className="h-6 w-6" />
+                          <span className="text-xs">Manage Artisans</span>
                         </Button>
                         <Button 
                           variant="outline" 
@@ -324,14 +395,14 @@ const Dashboard = () => {
                       <CardTitle>Artisan Management</CardTitle>
                       <CardDescription>Manage artisan profiles and applications</CardDescription>
                     </div>
-                    <Button size="sm">
-                      <UserCheck className="h-4 w-4 mr-2" />
-                      Approve Pending
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      {actionNotice && <Badge variant={actionNotice.variant}>{actionNotice.text}</Badge>}
+                      <div className="text-sm text-muted-foreground">Pending: {pendingApps.length} • Approved: {approvedArtisans.length}</div>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {mockArtisans.map((artisan) => (
+                      {pendingApps.map((artisan) => (
                         <div key={artisan.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
@@ -344,24 +415,80 @@ const Dashboard = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <p className="font-medium">{artisan.totalSales} sales</p>
-                              <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 fill-current text-yellow-400" />
-                                <span className="text-xs">{artisan.rating}</span>
-                              </div>
-                            </div>
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm">
-                                View Profile
+                              <Button variant="secondary" size="sm" onClick={() => approveApp(artisan.id)}>
+                                <UserCheck className="h-4 w-4 mr-2" />Approve
                               </Button>
-                              <Button variant="outline" size="sm">
-                                Edit
+                              <Button variant="outline" size="sm" onClick={() => rejectApp(artisan.id)}>
+                                Reject
                               </Button>
                             </div>
                           </div>
                         </div>
                       ))}
+                      {pendingApps.length === 0 && (
+                        <div className="text-sm text-muted-foreground">No pending applications.</div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="users">
+                <Card className="shadow-craft-soft">
+                  <CardHeader>
+                    <CardTitle>Approved Artisans</CardTitle>
+                    <CardDescription>Remove artisans from Explore if needed</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {approvedArtisans.map((a) => (
+                        <div key={a.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <p className="font-medium">{a.name}</p>
+                            <p className="text-xs text-muted-foreground">{a.specialty} • {a.location}</p>
+                          </div>
+                          <Button variant="destructive" size="sm" onClick={() => removeApproved(a.id)}>Remove</Button>
+                        </div>
+                      ))}
+                      {approvedArtisans.length === 0 && (
+                        <div className="text-sm text-muted-foreground">No approved artisans yet.</div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="manage-artisans">
+                <Card className="shadow-craft-soft">
+                  <CardHeader>
+                    <CardTitle>Manage Artisans (All)</CardTitle>
+                    <CardDescription>Show or hide artisans on Explore</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {[
+                        ...mockArtisans.map((a) => ({ manageId: `base-${a.id}`, name: a.name, specialty: a.specialty, location: a.location })),
+                        ...approvedArtisans.map((a: any) => ({ manageId: `approved-${a.id}`, name: a.name, specialty: a.specialty, location: a.location })),
+                      ].map((a) => {
+                        const isHidden = removedIds.includes(a.manageId);
+                        return (
+                          <div key={a.manageId} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div>
+                              <p className="font-medium flex items-center gap-2">
+                                {a.name}
+                                {isHidden && <span className="text-xs px-2 py-0.5 rounded bg-destructive/10 text-destructive">Removed</span>}
+                              </p>
+                              <p className="text-xs text-muted-foreground">{a.specialty} • {a.location}</p>
+                            </div>
+                            {isHidden ? (
+                              <Button size="sm" variant="secondary" onClick={() => toggleVisibility(a.manageId, true)}>Restore</Button>
+                            ) : (
+                              <Button size="sm" variant="outline" onClick={() => toggleVisibility(a.manageId, false)}>Remove</Button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
