@@ -63,7 +63,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await setDoc(userDocRef, profileData, { merge: true });
       setUserProfile(profileData);
     } catch (error) {
-      console.error('Error saving user profile:', error);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error('Error saving user profile:', error);
+      }
     }
   };
 
@@ -78,7 +81,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return null;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error('Error fetching user profile:', error);
+      }
       return null;
     }
   };

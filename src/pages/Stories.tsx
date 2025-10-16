@@ -8,8 +8,22 @@ import { Heart, Clock, User, Play, BookOpen, Award, Trash } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+interface Story {
+  id: number | string;
+  title: string;
+  description: string;
+  author: string;
+  authorImage: string;
+  category: string;
+  readTime: string;
+  publishDate: string;
+  image: string;
+  tags: string[];
+  featured?: boolean;
+}
+
 const Stories = () => {
-  const initialFeaturedStories = [
+  const initialFeaturedStories: Story[] = [
     {
       id: 1,
       title: "From Grandmother's Attic to Global Recognition",
@@ -38,7 +52,7 @@ const Stories = () => {
     }
   ];
 
-  const initialBaseRecentStories = [
+  const initialBaseRecentStories: Story[] = [
     {
       id: 3,
       title: "Behind the Scenes: A Day in David's Leather Workshop",
@@ -48,7 +62,7 @@ const Stories = () => {
       category: "Process",
       readTime: "5 min read",
       publishDate: "2024-01-20",
-     image: "/behind-the-scenes-a-day-in-davids-leather-workshop.jpg",
+      image: "/behind-the-scenes-a-day-in-davids-leather-workshop.jpg",
       tags: ["Leather", "Craftsmanship", "Process"]
     },
     {
@@ -89,9 +103,9 @@ const Stories = () => {
     }
   ];
 
-  const [userStories, setUserStories] = useState<any[]>([]);
-  const [featuredStories, setFeaturedStories] = useState<any[]>(initialFeaturedStories);
-  const [baseRecentStories, setBaseRecentStories] = useState<any[]>(initialBaseRecentStories);
+  const [userStories, setUserStories] = useState<Story[]>([]);
+  const [featuredStories, setFeaturedStories] = useState<Story[]>(initialFeaturedStories);
+  const [baseRecentStories, setBaseRecentStories] = useState<Story[]>(initialBaseRecentStories);
   const [isAdmin, setIsAdmin] = useState(false);
   useEffect(() => {
     const raw = localStorage.getItem("userStories");
@@ -100,7 +114,13 @@ const Stories = () => {
     try {
       const u = userRaw ? JSON.parse(userRaw) : null;
       setIsAdmin(!!u && u.role === "admin");
-    } catch {}
+    } catch (error) {
+      // Failed to parse user data, default to non-admin
+      if (import.meta.env.DEV) {
+        console.error('Failed to parse user data from localStorage:', error);
+      }
+      setIsAdmin(false);
+    }
   }, []);
 
   const handleDelete = (id: number | string, source: "user" | "featured" | "recent") => {

@@ -165,7 +165,7 @@ const ArtisanSignup: FC = () => {
 
   const API_URL =
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=";
-  const API_KEY = "AIzaSyCMxyzo3PJlFH5dyxh-Td_V3ZTzboix0L0";
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ""; // API key from environment variables
 
   const handleEnhanceBio = async () => {
     if (!firstName.trim() || !craftType.trim()) {
@@ -226,7 +226,10 @@ const ArtisanSignup: FC = () => {
         throw new Error("Received an empty response from the AI.");
       }
     } catch (error) {
-      console.error("Failed to enhance bio:", error);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error("Failed to enhance bio:", error);
+      }
       toast({
         title: "Enhancement Failed",
         description: "Could not enhance the story. Please try again.",
@@ -305,7 +308,10 @@ const ArtisanSignup: FC = () => {
           throw new Error("No enhanced image data returned.");
         }
       } catch (error) {
-        console.error("Error enhancing image:", error);
+        // Log error only in development mode
+        if (import.meta.env.DEV) {
+          console.error("Error enhancing image:", error);
+        }
         toast({
           title: "Enhancement Failed",
           description: "Could not enhance the image.",
@@ -316,7 +322,10 @@ const ArtisanSignup: FC = () => {
       }
     };
     reader.onerror = (error) => {
-      console.error("Error converting file to base64:", error);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error("Error converting file to base64:", error);
+      }
       toast({
         title: "Error",
         description: "Could not process image file.",

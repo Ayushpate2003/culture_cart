@@ -60,7 +60,7 @@ const ChatWidget = ({ isOpen, onClose }) => {
   // --- API Configuration ---
   const API_URL =
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=";
-  const API_KEY = "AIzaSyCMxyzo3PJlFH5dyxh-Td_V3ZTzboix0L0"; // The API key is handled by the environment, so we leave this empty.
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ""; // API key from environment variables
 
   // Effect to scroll down when a new message is added
   useEffect(() => {
@@ -134,7 +134,10 @@ const ChatWidget = ({ isOpen, onClose }) => {
 
       setMessages((prev) => [...prev, { sender: "bot", text: botResponse }]);
     } catch (error) {
-      console.error("Failed to fetch bot response:", error);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error("Failed to fetch bot response:", error);
+      }
       setMessages((prev) => [
         ...prev,
         {
