@@ -11,6 +11,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+// Type for location state when redirecting from protected routes
+type LocationState = {
+  from?: {
+    pathname: string;
+  };
+};
+
 // Simple email validation function
 const isValidEmail = (email: string): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -26,7 +33,7 @@ const Login = () => {
   const { login, loginWithGoogle } = useAuth();
   const { toast } = useToast();
 
-  const from = (location.state as any)?.from?.pathname || "/dashboard";
+  const from = (location.state as LocationState)?.from?.pathname || "/dashboard";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,11 +60,12 @@ const Login = () => {
         description: "Welcome back to CultureCart!",
       });
       navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err.message || "Failed to login. Please check your credentials.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to login. Please check your credentials.";
+      setError(errorMessage);
       toast({
         title: "Login Failed",
-        description: err.message || "Please check your credentials and try again.",
+        description: errorMessage || "Please check your credentials and try again.",
         variant: "destructive",
       });
     } finally {
@@ -76,11 +84,12 @@ const Login = () => {
         description: "Welcome to CultureCart!",
       });
       navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err.message || "Failed to login with Google");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to login with Google";
+      setError(errorMessage);
       toast({
         title: "Login Failed",
-        description: err.message || "Failed to sign in with Google.",
+        description: errorMessage || "Failed to sign in with Google.",
         variant: "destructive",
       });
     } finally {
