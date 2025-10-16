@@ -63,8 +63,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await setDoc(userDocRef, profileData, { merge: true });
       setUserProfile(profileData);
     } catch (error) {
-      // Log error only in development mode
-      if (import.meta.env.DEV) {
+      // Log error in production
+      if (import.meta.env.PROD) {
         console.error('Error saving user profile:', error);
       }
     }
