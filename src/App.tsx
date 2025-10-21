@@ -31,6 +31,9 @@ import AdminSync from "./pages/admin/AdminSync";
 
 import ResetPassword from "./pages/ResetPassword";
 import SubmitStory from "./pages/SubmitStory";
+import AdminDebug from "./components/AdminDebug";
+import AdminSetup from "./components/AdminSetup";
+import AdminSetupPage from "./pages/AdminSetupPage";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +59,12 @@ const App = () => {
               <Route path="/artisans" element={<ArtisanProfiles />} />
               
               {/* Admin setup removed for security - use Firebase console or server-side tools */}
+              
+              {/* Temporary Debug Route - Remove in production */}
+              <Route path="/admin-debug" element={<AdminDebug />} />
+              
+              {/* Secure Admin Setup Page - Shows instructions only */}
+              <Route path="/admin-setup" element={<AdminSetupPage />} />
               
               {/* Protected Routes - Require Authentication */}
               <Route 
