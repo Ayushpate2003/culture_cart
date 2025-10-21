@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navbar } from "@/components/navigation/Navbar";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
-  getUser, 
-  isAdmin, 
   mockProducts, 
   mockArtisans, 
   mockOrders,
@@ -27,7 +26,7 @@ import {
 } from "lucide-react";
 
 const Dashboard = () => {
-  const [user, setUser] = useState<any>(null);
+  const { currentUser, userProfile, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [pendingApps, setPendingApps] = useState<any[]>([]);
   const [approvedArtisans, setApprovedArtisans] = useState<any[]>([]);
@@ -37,12 +36,10 @@ const Dashboard = () => {
   const [removedIds, setRemovedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const currentUser = getUser();
     if (!currentUser) {
       navigate("/login");
       return;
     }
-    setUser(currentUser);
     const apps = JSON.parse(localStorage.getItem("artisanApplications") || "[]");
     setPendingApps(apps);
     const approved = JSON.parse(localStorage.getItem("approvedArtisans") || "[]");
@@ -114,18 +111,18 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 pt-24 pb-8">
+      <div className="container mx-auto px-3 sm:px-4 pt-20 sm:pt-24 pb-6 sm:pb-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-heading font-bold">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold">
               {isAdmin() ? "Admin Dashboard" : "My Dashboard"}
             </h1>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card className="shadow-craft-soft">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -205,46 +202,62 @@ const Dashboard = () => {
                       <CardDescription>Common administrative tasks</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 sm:gap-4">
                         <Button 
                           variant="outline" 
-                          className="h-20 flex-col gap-2"
+                          className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 p-2 sm:p-4"
                           onClick={() => navigate("/admin/add-product")}
                         >
-                          <Package className="h-6 w-6" />
-                          <span className="text-xs">Add Product</span>
+                          <Package className="h-4 w-4 sm:h-6 sm:w-6" />
+                          <span className="text-xs text-center leading-tight">Add Product</span>
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="h-20 flex-col gap-2"
+                          className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 p-2 sm:p-4"
                           onClick={() => navigate("/admin/add-artisan")}
                         >
-                          <Users className="h-6 w-6" />
-                          <span className="text-xs">Add Artisan</span>
+                          <Users className="h-4 w-4 sm:h-6 sm:w-6" />
+                          <span className="text-xs text-center leading-tight">Add Artisan</span>
                         </Button>
                         <Button
                           variant="outline"
-                          className="h-20 flex-col gap-2"
+                          className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 p-2 sm:p-4"
                           onClick={() => setActiveTab("manage-artisans")}
                         >
-                          <Users className="h-6 w-6" />
-                          <span className="text-xs">Manage Artisans</span>
+                          <Users className="h-4 w-4 sm:h-6 sm:w-6" />
+                          <span className="text-xs text-center leading-tight">Manage Artisans</span>
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="h-20 flex-col gap-2"
+                          className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 p-2 sm:p-4"
                           onClick={() => navigate("/admin/view-orders")}
                         >
-                          <ShoppingBag className="h-6 w-6" />
-                          <span className="text-xs">View Orders</span>
+                          <ShoppingBag className="h-4 w-4 sm:h-6 sm:w-6" />
+                          <span className="text-xs text-center leading-tight">View Orders</span>
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="h-20 flex-col gap-2"
+                          className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 p-2 sm:p-4"
                           onClick={() => navigate("/admin/analytics")}
                         >
-                          <TrendingUp className="h-6 w-6" />
-                          <span className="text-xs">Analytics</span>
+                          <TrendingUp className="h-4 w-4 sm:h-6 sm:w-6" />
+                          <span className="text-xs text-center leading-tight">Analytics</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 p-2 sm:p-4"
+                          onClick={() => navigate("/admin/user-management")}
+                        >
+                          <UserCheck className="h-4 w-4 sm:h-6 sm:w-6" />
+                          <span className="text-xs text-center leading-tight">User Management</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="h-16 sm:h-20 flex-col gap-1 sm:gap-2 p-2 sm:p-4"
+                          onClick={() => navigate("/admin/sync")}
+                        >
+                          <Users className="h-4 w-4 sm:h-6 sm:w-6" />
+                          <span className="text-xs text-center leading-tight">Admin Sync</span>
                         </Button>
                       </div>
                     </CardContent>
@@ -296,33 +309,38 @@ const Dashboard = () => {
                   <CardContent>
                     <div className="space-y-4">
                       {mockOrders.map((order) => (
-                        <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div key={order.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg hover:bg-muted/50 transition-colors gap-3 sm:gap-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-4">
-                              <div>
-                                <p className="font-medium">{order.id}</p>
-                                <p className="text-sm text-muted-foreground">{order.customerEmail}</p>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                              <div className="flex-1">
+                                <p className="font-medium text-sm sm:text-base">{order.id}</p>
+                                <p className="text-xs sm:text-sm text-muted-foreground">{order.customerEmail}</p>
                                 <p className="text-xs text-muted-foreground">{order.orderDate}</p>
                               </div>
-                              <div className="hidden md:block">
+                              <div className="sm:hidden">
+                                <p className="text-xs text-muted-foreground">
+                                  {order.products.length} item(s)
+                                </p>
+                              </div>
+                              <div className="hidden sm:block">
                                 <p className="text-sm text-muted-foreground">
                                   {order.products.length} item(s)
                                 </p>
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <p className="font-medium">${order.total.toFixed(2)}</p>
+                          <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+                            <div className="text-left sm:text-right">
+                              <p className="font-medium text-sm sm:text-base">${order.total.toFixed(2)}</p>
                               <Badge variant={
                                 order.status === "delivered" ? "default" :
                                 order.status === "shipped" ? "secondary" :
                                 order.status === "processing" ? "secondary" : "outline"
-                              }>
+                              } className="text-xs">
                                 {order.status}
                               </Badge>
                             </div>
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" className="text-xs sm:text-sm">
                               View Details
                             </Button>
                           </div>
@@ -552,7 +570,7 @@ const Dashboard = () => {
               <TabsContent value="analytics">
                 <div className="grid gap-6">
                   {/* Performance Metrics */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <Card className="shadow-craft-soft">
                       <CardHeader>
                         <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>

@@ -100,8 +100,8 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 py-16 flex items-center justify-center">
-        <Card className="w-full max-w-md shadow-craft-soft">
+      <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-16 flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <Card className="w-full max-w-md mx-3 sm:mx-0 shadow-craft-soft">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-heading">Welcome Back</CardTitle>
             <CardDescription>Sign in to your CraftConnect account</CardDescription>

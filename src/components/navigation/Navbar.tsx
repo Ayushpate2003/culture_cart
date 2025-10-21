@@ -1,19 +1,35 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Menu, X, LogOut, User, ArrowLeft } from "lucide-react";
-import { getUser, logout } from "@/data/mockData";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Menu, X, LogOut, User, ArrowLeft, Settings, Palette, Shield } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const user = getUser();
+  const { currentUser, userProfile, logout, isAdmin, isArtisan } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Logout Failed",
+        description: "Failed to logout. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const navLinks = [
@@ -59,15 +75,31 @@ export const Navbar = () => {
                 </Button>
               </Link>
             )}
-            {user ? (
-              <div className="flex items-center space-x-4">
+            {currentUser ? (
+              <div className="flex items-center space-x-3">
+                {/* User Avatar and Info */}
+                <div className="flex items-center space-x-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={currentUser.photoURL || undefined} />
+                    <AvatarFallback className="text-xs">
+                      {userProfile?.displayName?.split(" ").map(n => n[0]).join("").toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden lg:block">
+                    <p className="text-sm font-medium">
+                      {userProfile?.displayName || "User"}
+                    </p>
+                    <Badge variant="secondary" className="text-xs">
+                      {isAdmin() ? "Admin" : isArtisan() ? "Artisan" : "User"}
+                    </Badge>
+                  </div>
+                </div>
+                
+                {/* Navigation Buttons */}
                 <Link to="/dashboard">
                   <Button variant="outline" size="sm">
                     <User className="h-4 w-4 mr-2" />
                     Dashboard
-                    <Badge variant="secondary" className="ml-2 text-xs">
-                      {user.role === "admin" ? "Admin" : "User"}
-                    </Badge>
                   </Button>
                 </Link>
                 <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -126,15 +158,30 @@ export const Navbar = () => {
                     </Button>
                   </Link>
                 )}
-                {user ? (
+                {currentUser ? (
                   <>
+                    {/* User Info in Mobile */}
+                    <div className="flex items-center space-x-3 px-3 py-2 border-b border-border mb-2">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={currentUser.photoURL || undefined} />
+                        <AvatarFallback>
+                          {userProfile?.displayName?.split(" ").map(n => n[0]).join("").toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {userProfile?.displayName || "User"}
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          {isAdmin() ? "Admin" : isArtisan() ? "Artisan" : "User"}
+                        </Badge>
+                      </div>
+                    </div>
+                    
                     <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="ghost" size="sm" className="justify-start w-full">
                         <User className="h-4 w-4 mr-2" />
                         Dashboard
-                        <Badge variant="secondary" className="ml-2 text-xs">
-                          {user.role === "admin" ? "Admin" : "User"}
-                        </Badge>
                       </Button>
                     </Link>
                     <Button 

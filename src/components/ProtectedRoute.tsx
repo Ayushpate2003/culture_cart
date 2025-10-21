@@ -5,11 +5,13 @@ import { Loader2 } from 'lucide-react';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireArtisan?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requireAdmin = false
+  requireAdmin = false,
+  requireArtisan = false
 }) => {
   const { currentUser, userProfile, loading } = useAuth();
   const location = useLocation();
@@ -27,6 +29,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (requireAdmin && userProfile?.role !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  if (requireArtisan && userProfile?.role !== 'artisan' && userProfile?.role !== 'admin') {
     return <Navigate to="/dashboard" replace />;
   }
 

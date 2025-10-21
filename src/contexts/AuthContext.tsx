@@ -10,8 +10,9 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
+import AdminSyncManager from '@/utils/adminSync';
 
 interface UserProfile {
   uid: string;
@@ -28,8 +29,11 @@ interface AuthContextType {
   signup: (email: string, password: string, displayName: string, role?: 'user' | 'artisan') => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (role?: 'user' | 'artisan') => Promise<void>;
+  updateUserRole: (role: 'user' | 'artisan' | 'admin') => Promise<void>;
   isAdmin: () => boolean;
+  isArtisan: () => boolean;
+  needsProfileCompletion: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -63,10 +67,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await setDoc(userDocRef, profileData, { merge: true });
       setUserProfile(profileData);
     } catch (error) {
-      // Log error in production
-      if (import.meta.env.PROD) {
-        console.error('Error saving user profile:', error);
-      }
+      console.warn('Firestore not available, using local profile storage:', error);
+      
+      // Check localStorage for admin users (fallback mechanism)
+      const localAdmins = JSON.parse(localStorage.getItem('localAdminUsers') || '[]');
+      const isLocalAdmin = localAdmins.includes(user.email);
+      
+      // If Firestore fails, still set the profile locally for the session
+      const profileData: UserProfile = {
+        uid: user.uid,
+        email: user.email || '',
+        displayName: user.displayName,
+        role: isLocalAdmin ? 'admin' : role,
+      };
+      setUserProfile(profileData);
+      
+      // Store profile locally as backup
+      localStorage.setItem(`userProfile_${user.uid}`, JSON.stringify(profileData));
     }
   };
 
@@ -81,10 +98,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return null;
     } catch (error) {
-      // Log error only in development mode
-      if (import.meta.env.DEV) {
-        console.error('Error fetching user profile:', error);
+      console.warn('Firestore not available, checking local storage:', error);
+      
+      // Fallback to localStorage if Firestore is not available
+      const localProfile = localStorage.getItem(`userProfile_${uid}`);
+      if (localProfile) {
+        try {
+          return JSON.parse(localProfile) as UserProfile;
+        } catch (parseError) {
+          console.error('Error parsing local profile:', parseError);
+        }
       }
+      
       return null;
     }
   };
@@ -103,10 +128,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Google login
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (role: 'user' | 'artisan' = 'user') => {
     const provider = new GoogleAuthProvider();
     const userCredential = await signInWithPopup(auth, provider);
-    await saveUserProfile(userCredential.user);
+    await saveUserProfile(userCredential.user, role);
+  };
+
+  // Update user role (restricted - cannot self-promote to admin)
+  const updateUserRole = async (role: 'user' | 'artisan' | 'admin') => {
+    if (!currentUser) throw new Error('No user logged in');
+    
+    // SECURITY: Prevent users from promoting themselves to admin
+    if (role === 'admin' && userProfile?.role !== 'admin') {
+      throw new Error('Unauthorized: Cannot promote to admin role. Contact system administrator.');
+    }
+    
+    const updatedProfile: UserProfile = {
+      uid: currentUser.uid,
+      email: currentUser.email || '',
+      displayName: currentUser.displayName,
+      role,
+    };
+    
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      await setDoc(userDocRef, updatedProfile, { merge: true });
+      setUserProfile(updatedProfile);
+    } catch (error) {
+      console.warn('Firestore not available, updating locally:', error);
+      
+      // If Firestore fails, still update the profile locally for the session
+      // But still enforce admin role restriction
+      if (role === 'admin' && userProfile?.role !== 'admin') {
+        throw new Error('Unauthorized: Cannot promote to admin role even in offline mode.');
+      }
+      
+      setUserProfile(updatedProfile);
+      localStorage.setItem(`userProfile_${currentUser.uid}`, JSON.stringify(updatedProfile));
+      
+      console.log('Profile updated locally due to Firestore unavailability');
+    }
   };
 
   // Logout
@@ -123,6 +184,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check if admin
   const isAdmin = (): boolean => {
     return userProfile?.role === 'admin';
+  };
+
+  // Check if artisan
+  const isArtisan = (): boolean => {
+    return userProfile?.role === 'artisan';
+  };
+
+  // Check if user needs to complete profile (for Google login users)
+  const needsProfileCompletion = (): boolean => {
+    return currentUser && !userProfile?.role ? true : false;
   };
 
   // Listen to auth state changes
@@ -152,7 +223,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logout,
     resetPassword,
     loginWithGoogle,
-    isAdmin
+    updateUserRole,
+    isAdmin,
+    isArtisan,
+    needsProfileCompletion
   };
 
   return (
